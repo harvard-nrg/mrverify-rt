@@ -1,0 +1,250 @@
+- selector:
+    series_description: regex(localizer_(Skyra_)?32ch_uncombined)
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+  plugins:
+    params:
+      num_files: 96
+      coil_elements: HEA;HEP
+- selector:
+    series_description: tfl_b1map_STAR
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 12
+      pixel_spacing: [4, 4]
+      base_resolution: [0, 64, 56, 0]
+      percent_phase_field_of_view: 87.5
+      slice_thickness: 8
+      echo_time: 1.83
+      repetition_time: 8000
+      coil_elements: HEA;HEP
+      flip_angle: 8
+      prescan_norm: Off
+      bandwidth: 490
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: RF_Sens_head
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 44
+      pixel_spacing: [4, 4]
+      base_resolution: [0, 64, 56, 0]
+      percent_phase_field_of_view: 87.5
+      slice_thickness: 4
+      echo_time: 2
+      repetition_time: 4.6
+      coil_elements: HEA;HEP
+      flip_angle: 6
+      prescan_norm: Off
+      bandwidth: 490
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: RF_Sens_body
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 44
+      pixel_spacing: [4, 4]
+      base_resolution: [0, 64, 56, 0]
+      percent_phase_field_of_view: 87.5
+      slice_thickness: 4
+      echo_time: 2
+      repetition_time: 4.6
+      coil_elements: BC
+      flip_angle: 6
+      prescan_norm: Off
+      bandwidth: 490
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: ABCD_T1w_MPR_vNav_setter
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 32
+      pixel_spacing: [8, 8]
+      base_resolution: [0, 32, 32, 0]
+      percent_phase_field_of_view: 100
+      slice_thickness: 8
+      echo_time: 4.8
+      repetition_time: 11
+      coil_elements: BC
+      flip_angle: 2
+      prescan_norm: Off
+      bandwidth: 4885
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: ABCD_T1w_MPR_vNav
+    image_type: [ORIGINAL, PRIMARY, M, ND, NORM]
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 176
+      pixel_spacing: [1, 1]
+      base_resolution: [0, 256, 256, 0]
+      percent_phase_field_of_view: 100
+      slice_thickness: 1
+      echo_time: 2.9
+      repetition_time: 2500
+      coil_elements: HEA;HEP
+      flip_angle: 8
+      prescan_norm: On
+      bandwidth: 240
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: ABCD_fMRI_DisMap_Skyra_PA
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 60
+      pixel_spacing: [2.4, 2.4]
+      base_resolution: [90, 0, 0, 90]
+      percent_phase_field_of_view: 100
+      slice_thickness: 2.4
+      echo_time: 80
+      repetition_time: 7300
+      coil_elements: HEA;HEP
+      flip_angle: 90
+      prescan_norm: Off
+      bandwidth: 2220
+      pe_direction: COL
+      orientation_string: regex(Tra>.*)
+- selector:
+    series_description: ABCD_fMRI_DisMap_Skyra_AP
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 60
+      pixel_spacing: [2.4, 2.4]
+      base_resolution: [90, 0, 0, 90]
+      percent_phase_field_of_view: 100
+      slice_thickness: 2.4
+      echo_time: 80
+      repetition_time: 7300
+      coil_elements: HEA;HEP
+      flip_angle: 90
+      prescan_norm: Off
+      bandwidth: 2220
+      pe_direction: COL
+      orientation_string: regex(Tra>.*)
+- selector:
+    series_description: ABCD_fMRI_rest_Skyra
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 60
+      num_volumes: 383
+      pixel_spacing: [2.4, 2.4]
+      base_resolution: [90, 0, 0, 90]
+      percent_phase_field_of_view: 100
+      slice_thickness: 2.4
+      echo_time: 35
+      repetition_time: 890
+      coil_elements: HEA;HEP
+      flip_angle: 52
+      prescan_norm: Off
+      bandwidth: 2220
+      pe_direction: COL
+      orientation_string: regex(Tra>.*)
+    volreg:
+      params: null
+- selector:
+    series_description: ABCD_T2w_SPC_vNav_setter
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 32
+      pixel_spacing: [8, 8]
+      base_resolution: [0, 32, 32, 0]
+      percent_phase_field_of_view: 100
+      slice_thickness: 8
+      echo_time: 6.1
+      repetition_time: 13
+      coil_elements: BC
+      flip_angle: 2
+      prescan_norm: Off
+      bandwidth: 4885
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: ABCD_T2w_SPC_vNav
+    image_type: [ORIGINAL, PRIMARY, M, ND, NORM]
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 176
+      pixel_spacing: [1, 1]
+      base_resolution: [0, 256, 256, 0]
+      percent_phase_field_of_view: 100
+      slice_thickness: 1
+      echo_time: 565
+      repetition_time: 3200
+      coil_elements: HEA;HEP
+      prescan_norm: On
+      bandwidth: 240
+      pe_direction: ROW
+      orientation_string: regex(Sag>.*)
+- selector:
+    series_description: UKbioDiff_ABCDseq_DistMap_PA
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 72
+      pixel_spacing: [2, 2]
+      base_resolution: [108, 0, 0, 108]
+      percent_phase_field_of_view: 100
+      slice_thickness: 2
+      echo_time: 99
+      repetition_time: 10900
+      coil_elements: HEA;HEP
+      flip_angle: 90
+      prescan_norm: Off
+      bandwidth: 1780
+      pe_direction: COL
+      orientation_string: regex(Tra>.*)
+- selector:
+    series_description: UKbioDiff_ABCDseq_DistMap_AP
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 72
+      pixel_spacing: [2, 2]
+      base_resolution: [108, 0, 0, 108]
+      percent_phase_field_of_view: 100
+      slice_thickness: 2
+      echo_time: 99
+      repetition_time: 10900
+      coil_elements: HEA;HEP
+      flip_angle: 90
+      prescan_norm: Off
+      bandwidth: 1780
+      pe_direction: COL
+      orientation_string: regex(Tra>.*)
+- selector:
+    series_description: UKbioDiff_ABCDseq_ABCDdvs
+  plugins:
+    params:
+      patient_position: HFS
+      num_slices: 72
+      num_volumes: 103
+      pixel_spacing: [2, 2]
+      base_resolution: [108, 0, 0, 108]
+      percent_phase_field_of_view: 100
+      slice_thickness: 2
+      echo_time: 99
+      repetition_time: 3700
+      coil_elements: HEA;HEP
+      flip_angle: 90
+      prescan_norm: Off
+      bandwidth: 1780
+      pe_direction: COL
+      orientation_string: regex(Tra>.*)
+
