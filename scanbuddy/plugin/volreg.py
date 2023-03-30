@@ -61,13 +61,13 @@ class Plugin:
         p = Process(target=self._plot, args=(arr,))
         p.start()
 
-    def _plot(self, arr):      
-        matplotlib.rc('lines', antialiased=True, linewidth=0.5)
-        matplotlib.rc('legend', fontsize=10)
+    def _plot(self, arr):
+        matplotlib.rcParams['toolbar'] = 'None'
+        plt.style.use('bmh')
         # rotations subplot
         plt.subplot(211)
         plt.plot(arr[:, 0:3])
-        plt.legend(['roll', 'pitch', 'yaw'])
+        plt.legend(['roll', 'pitch', 'yaw'], loc='lower right')
         plt.title(f'Rotations - series {self._series}')
         plt.xlabel('Volumes (N)')
         plt.ylabel('radians')
@@ -75,7 +75,7 @@ class Plugin:
         # translations subplot
         plt.subplot(212)
         plt.plot(arr[:, 3:])
-        plt.legend(['superior', 'left', 'posterior'])
+        plt.legend(['superior', 'left', 'posterior'], loc='lower right')
         plt.title(f'Displacements - series {self._series}')
         plt.xlabel('Volumes (N)')
         plt.ylabel('mm')

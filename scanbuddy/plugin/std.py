@@ -39,5 +39,6 @@ class Plugin:
         p.start()
 
     def _plot(self, arr):
+        matplotlib.rcParams['toolbar'] = 'None'
         plt.imshow(arr, cmap='gray')
         plt.show()
