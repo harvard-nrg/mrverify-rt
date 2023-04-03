@@ -5,6 +5,7 @@ import subprocess as sp
 from multiprocessing import Process
 
 import numpy as np
+import nibabel as nib
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -37,6 +38,12 @@ class Plugin:
         with Timer('dcm2niix'):
             _ = sp.check_output(cmd, stderr=sp.STDOUT)
         nii = os.path.join(self._db, 'bold.nii.gz')
+        ds = nib.load(nii)
+        dims = ds.header['dim'][0]
+        if dims < 4:
+            logger.info(f'series only has {dims} dimensions')
+            return
+        if ds.header['dim'][0]
         # estimate motion parameters
         mocopar = os.path.join(self._db, 'moco.par')
         cmd = [
