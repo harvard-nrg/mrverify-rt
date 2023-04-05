@@ -4,7 +4,7 @@ import os
 import shutil
 import logging
 from argparse import ArgumentParser
-from pynetdicom import AE, evt, AllStoragePresentationContexts
+from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
 
 from scanbuddy.ingress import SeriesIngress
 
@@ -28,6 +28,9 @@ def main():
     if os.path.exists(args.cache):
         logger.info(f'cleaning up cache {args.cache}')
         shutil.rmtree(args.cache)
+
+    # catchall for unknown SOP classes e.g., Siemens PhysioLog
+    _config.UNRESTRICTED_STORAGE_SERVICE = True 
 
     ae = AE()
     ae.supported_contexts = AllStoragePresentationContexts
