@@ -13,6 +13,20 @@ start.py -c config.yaml
 
 Refer to `start.py --help` for more options.
 
+## Singularity
+The easiest way to run Scan Buddy is within a Singularity container. First, run 
+the following command to download the container image
+
+```bash
+singularity build scanbuddy.sif docker://ghcr.io/harvard-nrg/scanbuddy:latest
+```
+
+Now, you can run the container with the following command
+
+```bash
+./scanbuddy.sif -c config.yaml
+```
+
 ## Configuration file
 At it's core, Scan Buddy works off of a configuration file that _you_ define. 
 

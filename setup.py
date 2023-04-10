@@ -5,6 +5,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 requires = [
     'pyaml',
+    'pygame',
     'pynetdicom',
     'nibabel',
     'matplotlib',
@@ -24,7 +25,7 @@ setup(
     url=about['__url__'],
     packages=find_packages(),
     package_data={
-        '': ['*.yaml']
+        '': ['*.yaml', '*.mp3']
     },
     include_package_data=True,
     scripts=[

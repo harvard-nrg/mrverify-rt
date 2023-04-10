@@ -6,10 +6,15 @@ import logging
 from argparse import ArgumentParser
 from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
 
+import scanbuddy.config as config
 from scanbuddy.ingress import SeriesIngress
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+    datefmt='%b %d %H:%M:%S',
+    level=logging.INFO
+)
+logger = logging.getLogger('scanbuddy')
 
 Pool = dict()
 
@@ -19,14 +24,18 @@ def main():
     parser.add_argument('--address', default='0.0.0.0')
     parser.add_argument('--port', default=11112, type=int)
     parser.add_argument('--ae-title', default='SCANBUDDY')
-    parser.add_argument('--cache', default='~/.cache/scanbuddy')
+    parser.add_argument('--cache', default='~/.cache')
+    parser.add_argument('--no-sound', action='store_true')
     args = parser.parse_args()
 
     logging.getLogger('pynetdicom').setLevel(logging.ERROR)
 
+    config.no_sound = args.no_sound
+
     args.cache = os.path.expanduser(args.cache)
+    args.cache = os.path.join(args.cache, 'scanbuddy')
     if os.path.exists(args.cache):
-        logger.info(f'cleaning up cache {args.cache}')
+        logger.info(f'clearing cache {args.cache}')
         shutil.rmtree(args.cache)
 
     # catchall for unknown SOP classes e.g., Siemens PhysioLog
@@ -47,8 +56,10 @@ def handle_store(event, conf, cache):
     ds = event.dataset
     ds.file_meta = event.file_meta
     key = f'{ds.StudyInstanceUID}.{ds.SeriesNumber}'
+    if not ds.PatientName:
+        ds.PatientName = 'Unknown'
     if key not in Pool:
-        logger.info(f'receiving files for series {ds.SeriesNumber}')
+        logger.info(f'receiving {ds.PatientName} scan {ds.SeriesNumber}')
         Pool[key] = SeriesIngress(conf, cache=cache)
     ingressor = Pool[key]
     ingressor.save(ds)

@@ -43,7 +43,6 @@ class Plugin:
         if dims < 4:
             logger.info(f'series only has {dims} dimensions')
             return
-        if ds.header['dim'][0]
         # estimate motion parameters
         mocopar = os.path.join(self._db, 'moco.par')
         cmd = [

@@ -4,6 +4,7 @@ import pydicom
 import logging
 from termcolor import colored
 
+from scanbuddy.alerts import Audio
 import scanbuddy.scanner as scanner
 from scanbuddy.logging import DuplicateFilter
 
@@ -15,7 +16,8 @@ class Plugin:
         self._db = db
         self._params = params
         self._series = series
-        
+        self._audio = Audio()
+
     def run(self):
         errors = list()
         Scanner = None
@@ -24,6 +26,7 @@ class Plugin:
         for f in files:
             fullfile = os.path.join(self._db, f)
             ds = pydicom.read_file(fullfile)
+            name = ds.PatientName
             series = ds.SeriesNumber
             ds.num_files = num_files
             if not Scanner:
@@ -44,6 +47,7 @@ class Plugin:
                     if (series, key) in errors:
                         continue
                     errors.append((series, key))
-                    message = f'- series {series} - {key}: expected "{expected}" but found "{actual}"'
+                    message = f'{name} scan {series} - {key} - expected "{expected}" but found "{actual}"'
                     logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+                    self._audio.error()
             

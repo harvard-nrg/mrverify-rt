@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 pyaml = "*"
+pygame = "*"
 pynetdicom = "*"
 nibabel = "*"
 matplotlib = "*"
