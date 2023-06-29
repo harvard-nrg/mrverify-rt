@@ -16,6 +16,7 @@ class SeriesIngress:
         self._wait = wait
         self._db = None
         self._example = None
+        self._cleanup_callbacks = list()
         self._start_timer()
 
     def _start_timer(self):
@@ -45,6 +46,8 @@ class SeriesIngress:
         if os.path.exists(self._db):
             shutil.rmtree(self._db)
             self._db = None
+        for f in self._cleanup_callbacks:
+            f()
  
     def _process(self):
         series = self._example.SeriesNumber
@@ -56,3 +59,7 @@ class SeriesIngress:
                 plugin.run()
         finally:
             self.cleanup()
+
+    def register_cleanup_callback(self, f):
+        self._cleanup_callbacks.append(f)
+

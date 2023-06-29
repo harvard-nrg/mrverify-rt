@@ -61,6 +61,7 @@ def handle_store(event, conf, cache):
     if key not in Pool:
         logger.info(f'receiving {ds.PatientName} scan {ds.SeriesNumber}')
         Pool[key] = SeriesIngress(conf, cache=cache)
+        Pool[key].register_cleanup_callback(lambda: Pool.pop(key))
     ingressor = Pool[key]
     ingressor.save(ds)
     return 0x0000
