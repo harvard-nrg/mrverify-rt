@@ -3,6 +3,7 @@
 import os
 import shutil
 import logging
+import multiprocessing
 from argparse import ArgumentParser
 from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
 
@@ -67,4 +68,5 @@ def handle_store(event, conf, cache):
     return 0x0000
 
 if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn')
     main()
