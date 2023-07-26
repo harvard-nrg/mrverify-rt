@@ -43,10 +43,10 @@ RUN cmake .. && \
 
 # install scanbuddy
 ARG BUDDY_PREFIX="/sw/apps/scanbuddy"
-ARG BUDDY_VERSION="0.1.2"
+ARG BUDDY_VERSION="v0.1.3"
 RUN python3 -m venv "${BUDDY_PREFIX}" && \
     dnf install -y gcc zlib-devel libjpeg-devel python39-tkinter && \
-    "${BUDDY_PREFIX}/bin/pip" install "git+https://ncfcode.rc.fas.harvard.edu/nrg/scanbuddy.git@${BUDDY_VERSION}"
+    "${BUDDY_PREFIX}/bin/pip" install "git+https://github.com/harvard-nrg/scanbuddy.git@${BUDDY_VERSION}"
 
 # set up afni environment
 ENV PATH="${AFNI_PREFIX}:${PATH}"

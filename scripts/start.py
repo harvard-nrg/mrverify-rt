@@ -3,6 +3,7 @@
 import os
 import shutil
 import logging
+import scanbuddy
 import multiprocessing
 from argparse import ArgumentParser
 from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
@@ -30,6 +31,7 @@ def main():
     args = parser.parse_args()
 
     logging.getLogger('pynetdicom').setLevel(logging.ERROR)
+    logger.info(f'Scan Buddy {scanbuddy.version()} is ready.')
 
     config.no_sound = args.no_sound
 
@@ -44,7 +46,7 @@ def main():
 
     ae = AE()
     ae.supported_contexts = AllStoragePresentationContexts
-    logger.info(f'starting dicom receiver {args.ae_title} on {args.address}:{args.port}')
+    logger.info(f'starting dicom receiver "{args.ae_title}" on {args.address}:{args.port}')
     handlers = [(evt.EVT_C_STORE, handle_store, [args.config, args.cache])]
     ae.maximum_pdu_size = 0
     ae.start_server(

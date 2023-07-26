@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 logger.addFilter(DuplicateFilter())
 
 class Plugin:
-    def __init__(self, db, params, series=None):
+    def __init__(self, db, metadata, params):
         self._db = db
+        self._metadata = metadata
         self._params = params
-        self._series = series
         self._audio = Audio()
 
     def run(self):
@@ -28,6 +28,7 @@ class Plugin:
             ds = pydicom.read_file(fullfile)
             name = ds.PatientName
             series = ds.SeriesNumber
+            description = ds.SeriesDescription
             ds.num_files = num_files
             if not Scanner:
                 Scanner = scanner.get(ds)
@@ -47,7 +48,7 @@ class Plugin:
                     if (series, key) in errors:
                         continue
                     errors.append((series, key))
-                    message = f'{name} scan {series} - {key} - expected "{expected}" but found "{actual}"'
+                    message = f'{name}::{description}::{series} - {key} - expected "{expected}" but found "{actual}"'
                     logger.error(colored(message, 'red', attrs=['bold', 'blink']))
                     self._audio.error()
             

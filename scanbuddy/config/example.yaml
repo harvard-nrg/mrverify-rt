@@ -5,6 +5,8 @@
     params:
       num_files: 96
       coil_elements: HEA;HEP
+    std:
+      lt: 0.4
 - selector:
     series_description: tfl_b1map_STAR
     image_type: [ORIGINAL, PRIMARY, M, ND]

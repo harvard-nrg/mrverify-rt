@@ -18,6 +18,7 @@ class SeriesIngress:
         self._example = None
         self._cleanup_callbacks = list()
         self._start_timer()
+        self._errors = None
 
     def _start_timer(self):
         self._timer = Timer(self._wait, self._process)
@@ -55,8 +56,8 @@ class SeriesIngress:
         plugins = self._conf.select(Scanner(self._example))
         try:
             for name,params in iter(plugins.items()):
-                plugin = scanbuddy.plugin.load(name)(self._db, params, series)
-                plugin.run()
+                plugin = scanbuddy.plugin.load(name)(self._db, self._example, params)
+                self._errors = plugin.run()
         finally:
             self.cleanup()
 
