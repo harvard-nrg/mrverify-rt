@@ -88,7 +88,7 @@ class Plugin:
         plt.legend(['roll', 'pitch', 'yaw'], loc='lower right')
         plt.title(f'Rotations - series {series}')
         plt.xlabel('Volumes (N)')
-        plt.ylabel('radians')
+        plt.ylabel('degrees')
         plt.autoscale(enable=True, axis='both', tight=True)
         # translations subplot
         plt.subplot(212)
