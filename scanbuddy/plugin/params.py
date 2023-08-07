@@ -8,7 +8,7 @@ from scanbuddy.alerts import Audio
 import scanbuddy.scanner as scanner
 from scanbuddy.logging import DuplicateFilter
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('plugins.params')
 logger.addFilter(DuplicateFilter())
 
 class Plugin:
@@ -33,22 +33,26 @@ class Plugin:
             if not Scanner:
                 Scanner = scanner.get(ds)
             ds = Scanner(ds)
-            for key,expected in iter(self._params.items()):
+            for key,params in iter(self._params.items()):
+                expecting = params['expecting']
+                message = params.get('message', None)
                 # check if expected value is a regex
-                regex = re.match('regex\((.*)\)', str(expected))
+                regex = re.match('regex\((.*)\)', str(expecting))
                 if regex:
-                    expected = regex.group(1).strip()
+                    expecting = regex.group(1).strip()
                 actual = getattr(ds, key)()
                 try:
                     if regex:
-                        assert re.match(expected, actual) != None
+                        assert re.match(expecting, actual) != None
                     else:
-                        assert actual == expected
+                        assert actual == expecting
                 except AssertionError as e:
                     if (series, key) in errors:
                         continue
                     errors.append((series, key))
-                    message = f'{name}::{description}::{series} - {key} - expected "{expected}" but found "{actual}"'
-                    logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+                    if message:
+                        logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+                    details = f'{name}::{description}::{series} - {key} - expected "{expecting}" but found "{actual}"'
+                    logger.error(colored(details, 'red', attrs=['bold', 'blink']))
                     self._audio.error()
             

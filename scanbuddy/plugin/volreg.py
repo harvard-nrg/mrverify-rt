@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from scanbuddy.timer import Timer
 from scanbuddy.commons import which
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('plugins.volreg')
 
 class Plugin:
     def __init__(self, db, metadata, params, save_dirname='~/Desktop/images'):

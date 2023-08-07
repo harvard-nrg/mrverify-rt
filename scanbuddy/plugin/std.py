@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from termcolor import colored
 from multiprocessing import Process
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('plugins.std')
 
 class Plugin:
     def __init__(self, db, metadata, params, save_dirname='~/Desktop/images'):
@@ -28,14 +28,16 @@ class Plugin:
             series = ds.SeriesNumber
             description = ds.SeriesDescription
             instance = ds.InstanceNumber
-            instance_uid = ds.SeriesInstanceUID
+            self._metadata['InstanceNumber'].value = instance
             contrast = ds.pixel_array.std()
-            for op,expected in iter(self._params.items()):
-                if op == 'lt' and contrast < expected:
-                    message = f'scan {series} - {description} - found instance with std {contrast:.2f} < {expected}'
-                    logger.error(colored(message, 'red', attrs=['bold', 'blink']))
-                    message = f'🚨 CHECK HEAD COILL 🚨'
-                    logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+            for op,params in iter(self._params.items()):
+                expecting = params['expecting']
+                message = params.get('message', None)
+                if op == 'lt' and contrast < expecting:
+                    if message:
+                        logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+                    details = f'scan {series} - {description} - instance {instance} has std {contrast:.2f} < {expecting}'
+                    logger.error(colored(details, 'red', attrs=['bold', 'blink']))
                     self.plot(ds.pixel_array)
 
     def plot(self, arr):
