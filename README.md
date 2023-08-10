@@ -1,7 +1,8 @@
 Scan Buddy
 ============
 Scan Buddy is a simple DICOM C-STORE receiver that will process scans as they 
-arrive. The primary use case is detecting MRI acquisition errors.
+arrive. The primary use case is detecting MRI acquisition errors at the point
+of scan.
 
 ## Running Scan Buddy
 To run Scan Buddy, run the `start.py` command line tool with a 
