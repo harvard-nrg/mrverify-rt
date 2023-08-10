@@ -1,12 +1,47 @@
 Scan Buddy
 ============
-Scan Buddy is a simple DICOM C-STORE receiver that will process scans as they 
-arrive. The primary use case is detecting MRI acquisition errors at the point
-of scan.
+Traditional MRI quality control pipelines take place _after_ the entire MRI 
+session has been captured and the participant has gone home. Wouldn't it be 
+great if quality control could happen _during_ the session, where you have a 
+chance to respond to common runtime issues?
+
+Well, you're in luck. It just so happens that some (perhaps all) MRI scanners 
+can be configured to immediately send reconstructed files following an acquired 
+scan to a DICOM receiver. Scan Buddy is one such DICOM receiver that is able to 
+process incoming data and alert you to acquisition errors.
+
+## Table of contents
+1. [Hardware requirements](#hardware-requirements)
+2. [Installation](#installation)
+3. [Running](#running-scan-buddy)
+4. [Running as a container](#running-as-a-container)
+5. [Configuration file](#configuation-file)
+   1. [defining selectors](#defining-selectors)
+   2. [defining plugins](#defining-plugins)
+6. [Plugins](#plugins)
+   1. [params](#params)
+   2. [std](#std)
+   3. [volreg](#volreg)
+   4. [custom messages](#custom-messages)
+   5. [regular expression matching](#regular-expression-matching)
+
+## Hardware requirements
+Scan Buddy is a simple command line tool that runs on modest hardware. 
+Something as small as a Raspberry Pi 4 with 8 GB of RAM would do.
+
+## Installation
+Scan Buddy is written in Python and depends on
+[dcm2niix](https://github.com/rordenlab/dcm2niix) and a few tools from 
+[AFNI](https://github.com/afni/afni) (which are fast).
+
+You can certainly install everything on your own, or use 
+[one of the provided containers](https://github.com/harvard-nrg/scanbuddy/pkgs/container/scanbuddy)
+available for linux/amd64 or linux/arm64.
 
 ## Running Scan Buddy
-To run Scan Buddy, run the `start.py` command line tool with a 
-properly formatted [configuration file](#configuration-file)
+To run Scan Buddy, run the `start.py` command line tool with a properly 
+formatted
+[configuration file](#configuration-file)
 
 ```bash
 start.py -c config.yaml
@@ -14,24 +49,28 @@ start.py -c config.yaml
 
 Refer to `start.py --help` for more options.
 
-## Singularity
-The easiest way to run Scan Buddy is within a Singularity container. First, run 
-the following command to download the container image
+## Running as a container
+A much easier way to run Scan Buddy is within a Singularity container, where 
+all dependencies are pre-installed. First, you'll need to 
+[install Singularity](https://docs.sylabs.io/guides/3.0/user-guide/installation.html).
+Once you have that installed, run the following command to download the 
+container image
 
 ```bash
 singularity build scanbuddy.sif docker://ghcr.io/harvard-nrg/scanbuddy:latest
 ```
 
-Now, you can run the container with the following command
+Now you should be able to run the container with the following command
 
 ```bash
 ./scanbuddy.sif -c config.yaml
 ```
 
 ## Configuration file
-At it's core, Scan Buddy works off of a configuration file that _you_ define. 
+At it's core, Scan Buddy works off of a configuration file that _you_ must 
+define. 
 
-### selectors 
+### defining selectors 
 Scan Buddy passes every incoming scan through a `selector` and will run any 
 defined `plugins` on those scans. For example, to target an uncombined 
 localizer, you might use the following `selector`
@@ -46,11 +85,19 @@ This will select any scan that matches the expected `series_description` **AND**
 `image_type`. When an incoming scan is a correct match, Scan Buddy will proceed 
 with running any configured [plugins](#plugins).
 
-### plugins
+### defining plugins
 For each scan, you're able to register plugins within the `plugins` section. 
-For example, you can use the `params` plugin to check specific DICOM headers. 
-Checking the`coil_elements` DICOM header for the string `HEA;HEP` can detect 
-an improperly seated head coil
+For a description of available plugins, skip to the 
+[Available Plugins](#plugins)
+section
+
+## Plugins
+Following are descriptions of all builtin plugins.
+
+### params
+You can use the `params` plugin to check specific DICOM headers. Checking the 
+`coil_elements` header for the string `HEA;HEP` can detect an improperly seated 
+head coil
 
 ```yaml
 - selector:
@@ -62,22 +109,10 @@ an improperly seated head coil
         expecting: HEA;HEP
 ```
 
-If you want to display a custom message when an error is detected, you can 
-add the optional `message` key and a corresponding value
-
-```yaml
-- selector:
-    series_description: localizer_32ch_uncombined
-    image_type: [ORIGINAL, PRIMARY, M, ND]
-  plugins:
-    params:
-      coil_elements:
-        expecting: HEA;HEP
-        message: make sure the head coil is fully seated
-```
-
-You can also check if the standard deviation of every scan frame is less than 
-a chosen value using the `std` plugin. This can identify noisy receive coils
+### std
+You can check if the standard deviation of every frame is less than a chosen 
+value using the `std` plugin. This is useful for identifying noisy receive 
+coils
 
 ```yaml
 - selector:
@@ -93,75 +128,51 @@ a chosen value using the `std` plugin. This can identify noisy receive coils
         expecting: 0.7
 ```
 
-If there is no exact match for an expected value, you can use a regular 
-expression. For example, if you want your uncombined localizer `selector` 
-to match both Siemens Skyra and Prisma scanners, you could do something 
-like this
+### volreg
+You can have Scan Buddy run a fast volume registration on a BOLD scan using
+the `volreg` plugin
+
+> **Note**
+> Since `volreg` accepts no paramters, you would use `volreg: null`
 
 ```yaml
-- selector:
-    series_description: regex(localizer_(Skyra_)?32ch_uncombined)
-    image_type: [ORIGINAL, PRIMARY, M, ND]
-```
-
-Here's a slightly more fleshed out configuration file
-
-```yaml
-- selector:
-    series_description: regex(localizer_(Skyra_)?32ch_uncombined)
-    image_type: [ORIGINAL, PRIMARY, M, ND]
-  plugins:
-    params:
-      num_files:
-        expecting: 96
-      coil_elements:
-        expecting: HEA;HEP
-        message: make sure the head coil is fully seated
-    std:
-      lt:
-        expecting: 0.7
 - selector:
     series_description: ABCD_fMRI_rest_Skyra
   plugins:
-    params:
-      patient_position:
-        expecting: HFS
-      num_slices:
-        expecting: 60
-      num_volumes:
-        expecting: 383
-      pixel_spacing:
-        expecting: [2.4, 2.4]
-      base_resolution:
-        expecting: [90, 0, 0, 90]
-      percent_phase_field_of_view:
-        expecting: 100
-      slice_thickness:
-        expecting: 2.4
-      echo_time:
-        expecting: 35
-      repetition_time:
-        expecting: 890
-      coil_elements:
-        expecting: HEA;HEP
-      flip_angle:
-        expecting: 52
-      prescan_norm:
-        expecting: Off
-      bandwidth:
-        expecting: 2220
-      pe_direction:
-        expecting: COL
-      orientation_string:
-        expecting: regex(Tra>.*)
-    volreg:
-      params: null
+    volreg: null
 ```
 
-## Available plugins
-You may choose any number of plugins to run on incoming data
+### custom messages
+When there's an error detected, Scan Buddy will print a message like so
 
-1. `params` - Validate DICOM headers 
-2. `volreg` - Plot 4-D scan (e.g., BOLD) motion
-3. `std` - Compute the standard deviation of pixel data
+```bash
+PatientName::localizer_32ch_uncombined::2 - coil_elements - expected "HEA;HEP" but found "HEA"
+```
 
+Admittedly, these messages can be a little cryptic. If you want to display a 
+custom message when a particular type of error is detected, you can add a 
+`message` element
+
+```yaml
+- selector:
+    series_description: localizer_32ch_uncombined
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+  plugins:
+    params:
+      coil_elements:
+        expecting: HEA;HEP
+        message:  make sure the head coil is fully seated
+```
+
+### regular expression matching
+If there is no exact match for an expected value within a `selector` or a 
+`plugin`, you can use a regular expression. 
+
+For example, if you want your uncombined localizer `selector` to match both 
+Siemens Skyra and Prisma scanners, you would use something like this
+
+```yaml
+- selector:
+    series_description: regex(localizer_(Skyra_)?32ch_uncombined)
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+```

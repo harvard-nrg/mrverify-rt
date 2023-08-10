@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from termcolor import colored
 from multiprocessing import Process
 
-logger = logging.getLogger('plugins.std')
+logger = logging.getLogger(__name__)
 
 class Plugin:
     def __init__(self, db, metadata, params, save_dirname='~/Desktop/images'):

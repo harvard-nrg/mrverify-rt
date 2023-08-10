@@ -11,13 +11,12 @@ from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
 import scanbuddy.config as config
 from scanbuddy.ingress import SeriesIngress
 
+logger = logging.getLogger('scanbuddy')
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(name)s: %(message)s',
-    datefmt='%b %d %H:%M:%S',
-    level=logging.INFO
+    datefmt='%b %d %H:%M:%S'
 )
-logger = logging.getLogger('scanbuddy')
-
+   
 Pool = dict()
 
 def main():
@@ -28,9 +27,13 @@ def main():
     parser.add_argument('--ae-title', default='SCANBUDDY')
     parser.add_argument('--cache', default='~/.cache')
     parser.add_argument('--no-sound', action='store_true')
+    parser.add_argument('-v', '--verbose', action='store_true')
     args = parser.parse_args()
 
-    logging.getLogger('pynetdicom').setLevel(logging.ERROR)
+    logging.getLogger('scanbuddy').setLevel(logging.INFO)
+    if args.verbose:
+        logging.getLogger('scanbuddy').setLevel(logging.DEBUG)
+    
     logger.info(f'Scan Buddy {scanbuddy.version()} is ready.')
 
     config.no_sound = args.no_sound
