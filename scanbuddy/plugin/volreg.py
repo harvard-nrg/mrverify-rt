@@ -1,6 +1,7 @@
 import os
 import re
 import logging
+from glob import glob
 import subprocess as sp
 from multiprocessing import Process
 
@@ -25,7 +26,8 @@ class Plugin:
         os.makedirs(self._save_dirname, exist_ok=True)
 
     def run(self):
-        logger.info('running bold motion plugin')
+        series = self._metadata['SeriesNumber'].value
+        logger.info(f'running bold motion plugin on series {series}')
         # check installed dependencies
         for x in ['dcm2niix', '3dvolreg']:
             if not which(x):
@@ -41,7 +43,12 @@ class Plugin:
         ]
         with Timer('dcm2niix'):
             _ = sp.check_output(cmd, stderr=sp.STDOUT)
-        nii = os.path.join(self._db, 'bold.nii.gz')
+        # find single nifti file or multiecho nifti
+        nii = self.find_nii()
+        if not nii:
+            logger.warn(f'could not find a nifti for series {series}')
+            return
+        logger.debug(f'using file {nii}')
         ds = nib.load(nii)
         dims = ds.header['dim'][0]
         if dims < 4:
@@ -74,6 +81,17 @@ class Plugin:
             target=self._plot,
             args=(arr,)
         ).start()
+
+    def find_nii(self):
+        # look for a single nifti file
+        nii = os.path.join(self._db, 'bold.nii.gz')
+        if os.path.exists(nii):
+           return nii
+        # look for second echo from multiecho scan
+        nii = os.path.join(self._db, 'bold_e2.nii.gz')
+        if os.path.exists(nii):
+            return nii
+        return None
 
     def _plot(self, arr):
         name = self._metadata['PatientName'].value
