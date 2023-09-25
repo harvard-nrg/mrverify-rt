@@ -23,20 +23,19 @@ noisy data, incorrectly connected equipment, and excessive head motion.
 
 ## Hardware requirements
 Scan Buddy is a simple command line tool that runs on modest hardware. 
-Something as small as a Raspberry Pi 4 with 8 GB of RAM would do.
+Even something as small as a Raspberry Pi 4 with 8 GB of RAM would do.
 
 ## Installation
 Scan Buddy is written in Python and depends on
 [dcm2niix](https://github.com/rordenlab/dcm2niix) and a few tools from 
-[AFNI](https://github.com/afni/afni) (which are fast).
+[AFNI](https://github.com/afni/afni) (because they're really fast).
 
-You can certainly install everything on your own, or use 
+You can install everything on your own, or use 
 [one of the provided containers](https://github.com/harvard-nrg/scanbuddy/pkgs/container/scanbuddy)
-available for linux/amd64 or linux/arm64.
+which are available for linux/amd64 or linux/arm64.
 
 ## Running Scan Buddy
-To run Scan Buddy, run the `start.py` command line tool with a properly 
-formatted
+To run Scan Buddy, run the `start.py` command line tool with a custom 
 [configuration file](#configuration-file)
 
 ```bash
@@ -49,7 +48,7 @@ Refer to `start.py --help` for more options.
 A much easier way to run Scan Buddy is within a Singularity container, where 
 all dependencies are pre-installed. First, you'll need to 
 [install Singularity](https://docs.sylabs.io/guides/3.0/user-guide/installation.html).
-Once you have that installed, run the following command to download the 
+Once you have Singularity installed, run the following command to download the 
 container image
 
 ```bash
@@ -63,12 +62,12 @@ Now you should be able to run the container with the following command
 ```
 
 ## Configuration file
-At it's core, Scan Buddy works off of a configuration file that _you_ must 
-define. 
+At it's core, Scan Buddy works off of a configuration file. Here's how to 
+create one.
 
 ### defining selectors 
-Scan Buddy passes every incoming scan through a `selector` and will run any 
-defined `plugins` on those scans. For example, to target an uncombined 
+Scan Buddy passes every incoming scan through a `selector` and in turn will 
+run any defined `plugins` on a matching scan. For example, to target an uncombined 
 localizer, you might use the following `selector`
 
 ```yaml
@@ -78,21 +77,20 @@ localizer, you might use the following `selector`
 ```
 
 This will select any scan that matches the expected `series_description` **AND** 
-`image_type`. When an incoming scan is a correct match, Scan Buddy will proceed 
-with running any configured [plugins](#plugins).
+`image_type`. When Scan Buddy finds a match, it will proceed with running any 
+configured [plugins](#plugins).
 
 ### defining plugins
 For each scan, you're able to register plugins within the `plugins` section. 
-For a description of available plugins, skip to the 
-[Available Plugins](#plugins)
-section
+For a description of available plugins, skip to 
+[Available Plugins](#plugins).
 
 ## Plugins
-Following are descriptions of all builtin plugins.
+Here are all plugins that exist out of the box.
 
 ### params
-You can use the `params` plugin to check specific DICOM headers. Checking the 
-`coil_elements` header for the string `HEA;HEP` can detect an improperly seated 
+You can use the `params` plugin to check specific DICOM headers. For example, checking 
+the `coil_elements` header for the string `HEA;HEP` can detect an improperly seated 
 head coil
 
 ```yaml
@@ -106,9 +104,9 @@ head coil
 ```
 
 ### std
-You can check if the standard deviation of every frame is less than a chosen 
-value using the `std` plugin. This is useful for identifying noisy receive 
-coils
+You can check whether or not the standard deviation of every frame is less than 
+a particular value using the `std` plugin. This is useful for identifying especially 
+noisy receive coils
 
 ```yaml
 - selector:
