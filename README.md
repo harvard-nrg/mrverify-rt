@@ -1,12 +1,10 @@
 Scan Buddy
 ============
-Traditional MRI quality control pipelines take place _after_ the entire MRI 
-session has been captured and the participant has gone home. Wouldn't it be 
-great if quality control could happen _during_ the session, where you have a 
-chance to respond to common runtime issues?
-
-Well, you're in luck. Scan Buddy is a lightweight DICOM receiver that is able 
-to process incoming data and alert you to acquisition errors.
+Traditional MRI quality control pipelines take place _after_ the MRI has 
+been captured and the participant has gone home. Scan Buddy is a DICOM 
+receiver that you can place next to the scanner console that will ingest 
+data in realtime and alert you to potential acquisition errors such as 
+noisy data, incorrectly connected equipment, and excessive head motion.
 
 ## Table of contents
 1. [Hardware requirements](#hardware-requirements)
