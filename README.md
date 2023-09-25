@@ -22,8 +22,8 @@ noisy data, incorrectly connected equipment, and excessive head motion.
    5. [regular expression matching](#regular-expression-matching)
 
 ## Hardware requirements
-Scan Buddy is a simple command line tool that runs on modest hardware. 
-Even something as small as a Raspberry Pi 4 with 8 GB of RAM would do.
+Scan Buddy is a simple command line tool that will run on very modest hardware. 
+Even something as small as a Raspberry Pi 4 with 8 GB of RAM would do just fine.
 
 ## Installation
 Scan Buddy is written in Python and depends on
