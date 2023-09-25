@@ -5,10 +5,8 @@ session has been captured and the participant has gone home. Wouldn't it be
 great if quality control could happen _during_ the session, where you have a 
 chance to respond to common runtime issues?
 
-Well, you're in luck. It just so happens that some (perhaps all) MRI scanners 
-can be configured to immediately send reconstructed files following an acquired 
-scan to a DICOM receiver. Scan Buddy is one such DICOM receiver that is able to 
-process incoming data and alert you to acquisition errors.
+Well, you're in luck. Scan Buddy is a lightweight DICOM receiver that is able 
+to process incoming data and alert you to acquisition errors.
 
 ## Table of contents
 1. [Hardware requirements](#hardware-requirements)
