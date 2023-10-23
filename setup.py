@@ -6,10 +6,11 @@ here = os.path.abspath(os.path.dirname(__file__))
 requires = [
     'pyaml',
     'pygame',
+    'textual',
+    'textual-dev',
     'pynetdicom',
     'nibabel',
-    'matplotlib',
-    'termcolor'
+    'matplotlib'
 ]
 
 about = dict()
@@ -25,7 +26,7 @@ setup(
     url=about['__url__'],
     packages=find_packages(),
     package_data={
-        '': ['*.yaml', '*.mp3']
+        '': ['*.yaml', '*.tcss', '*.mp3']
     },
     include_package_data=True,
     scripts=[

@@ -1,77 +1,54 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3 -u
 
-import os
-import shutil
-import logging
 import scanbuddy
 import multiprocessing
-from argparse import ArgumentParser
-from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
-
+from textual.app import App
 import scanbuddy.config as config
-from scanbuddy.ingress import SeriesIngress
+from scanbuddy.cstore import CStore
+from argparse import ArgumentParser
+from textual.widgets import Header, Footer
+from scanbuddy.ui.widgets import Logger
+from scanbuddy.ui.screens.bsod import BSOD
+from scanbuddy.alerts import Audio
 
-logger = logging.getLogger('scanbuddy')
-logging.basicConfig(
-    format='%(asctime)s %(levelname)s %(name)s: %(message)s',
-    datefmt='%b %d %H:%M:%S'
-)
-   
-Pool = dict()
+class ScanBuddy(App):
+    BINDINGS = [
+        ('q', 'quit', 'Quit')
+    ]
 
-def main():
-    parser = ArgumentParser()
-    parser.add_argument('-c', '--config', required=True)
-    parser.add_argument('--address', default='0.0.0.0')
-    parser.add_argument('--port', default=11112, type=int)
-    parser.add_argument('--ae-title', default='SCANBUDDY')
-    parser.add_argument('--cache', default='~/.cache')
-    parser.add_argument('--no-sound', action='store_true')
-    parser.add_argument('-v', '--verbose', action='store_true')
-    args = parser.parse_args()
+    def parse_args(self):
+        parser = ArgumentParser()
+        parser.add_argument('-c', '--config', default='config.yaml')#required=True)
+        parser.add_argument('--address', default='0.0.0.0')
+        parser.add_argument('--port', default=11112, type=int)
+        parser.add_argument('--ae-title', default='SCANBUDDY')
+        parser.add_argument('--cache', default='~/.cache')
+        parser.add_argument('--no-sound', action='store_true')
+        parser.add_argument('--scrollback', type=int, default=5000)
+        parser.add_argument('-v', '--verbose', action='store_true')
+        self.args = parser.parse_args()
+        config.no_sound = self.args.no_sound
 
-    logging.getLogger('scanbuddy').setLevel(logging.INFO)
-    if args.verbose:
-        logging.getLogger('scanbuddy').setLevel(logging.DEBUG)
-    
-    logger.info(f'Scan Buddy {scanbuddy.version()} is ready.')
+    def compose(self):
+        self.parse_args()
+        self.logger = Logger(markup=True)
+        self.logger.max_lines = self.args.scrollback
+        yield Header()
+        yield self.logger
+        yield Footer()
 
-    config.no_sound = args.no_sound
+    def on_ready(self) -> None:
+        self.logger.info(f'Welcome to ScanBuddy {scanbuddy.version()}')
+        CStore(self).run()
 
-    args.cache = os.path.expanduser(args.cache)
-    args.cache = os.path.join(args.cache, 'scanbuddy')
-    if os.path.exists(args.cache):
-        logger.info(f'clearing cache {args.cache}')
-        shutil.rmtree(args.cache)
+    def chime(self) -> None:
+        Audio().chime()
 
-    # catchall for unknown SOP classes e.g., Siemens PhysioLog
-    _config.UNRESTRICTED_STORAGE_SERVICE = True 
-
-    ae = AE()
-    ae.supported_contexts = AllStoragePresentationContexts
-    logger.info(f'starting dicom receiver "{args.ae_title}" on {args.address}:{args.port}')
-    handlers = [(evt.EVT_C_STORE, handle_store, [args.config, args.cache])]
-    ae.maximum_pdu_size = 0
-    ae.start_server(
-        (args.address, args.port),
-        ae_title=args.ae_title, 
-        evt_handlers=handlers
-    )
-
-def handle_store(event, conf, cache):
-    ds = event.dataset
-    ds.file_meta = event.file_meta
-    key = f'{ds.StudyInstanceUID}.{ds.SeriesNumber}'
-    if not ds.PatientName:
-        ds.PatientName = 'Unknown'
-    if key not in Pool:
-        logger.info(f'receiving {ds.PatientName} scan {ds.SeriesNumber}')
-        Pool[key] = SeriesIngress(conf, cache=cache)
-        Pool[key].register_cleanup_callback(lambda: Pool.pop(key))
-    ingressor = Pool[key]
-    ingressor.save(ds)
-    return 0x0000
-
+    def bsod(self, message) -> None:
+        screen = BSOD(message)
+        self.push_screen(screen)
+ 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
-    main()
+    app = ScanBuddy()
+    app.run()

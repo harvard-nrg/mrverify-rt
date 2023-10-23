@@ -17,7 +17,9 @@ from scanbuddy.commons import which
 logger = logging.getLogger(__name__)
 
 class Plugin:
-    def __init__(self, db, metadata, params, save_dirname='~/Desktop/images'):
+    def __init__(self, app, db, metadata, params, save_dirname='~/Desktop/images'):
+        self.app = app
+        self.critical = (False, None, False)
         self._db = db
         self._metadata = metadata
         self._params = params if params else dict()
@@ -74,7 +76,6 @@ class Plugin:
                 row = list(map(float, row))
                 data.append(row)
         arr = np.array(data)
-        self.plot(arr)
 
     def plot(self, arr):
         p = Process(

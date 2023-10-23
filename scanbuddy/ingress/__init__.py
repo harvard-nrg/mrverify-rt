@@ -10,7 +10,8 @@ from scanbuddy.config import Config
 logger = logging.getLogger(__name__)
 
 class SeriesIngress:
-    def __init__(self, conf, cache='~/.cache/scanbuddy', wait=5):
+    def __init__(self, app, conf, cache='~/.cache/scanbuddy', wait=5):
+        self.app = app
         self._conf = Config(conf)
         self._cache = os.path.expanduser(cache)
         self._wait = wait
@@ -56,8 +57,15 @@ class SeriesIngress:
         plugins = self._conf.select(Scanner(self._example))
         try:
             for name,params in iter(plugins.items()):
-                plugin = scanbuddy.plugin.load(name)(self._db, self._example, params)
-                self._errors = plugin.run()
+                plugin = scanbuddy.plugin.load(name)(self.app, self._db, self._example, params)
+                self.app.call_from_thread(self.app.logger.info, f'running plugin {name} on series {series}')
+                plugin.run()
+                err, message, bsod = plugin.critical
+                if err:
+                    self.app.call_from_thread(self.app.chime)
+                    self.app.call_from_thread(self.app.logger.error, f'[bold red]{message}[/]')
+                    if bsod:
+                        self.app.call_from_thread(self.app.bsod, message)
         finally:
             self.cleanup()
 

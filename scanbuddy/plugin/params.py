@@ -2,9 +2,7 @@ import os
 import re
 import pydicom
 import logging
-from termcolor import colored
 
-from scanbuddy.alerts import Audio
 import scanbuddy.scanner as scanner
 from scanbuddy.logging import DuplicateFilter
 
@@ -12,11 +10,12 @@ logger = logging.getLogger('plugins.params')
 logger.addFilter(DuplicateFilter())
 
 class Plugin:
-    def __init__(self, db, metadata, params):
+    def __init__(self, app, db, metadata, params):
+        self.app = app
+        self.critical = (False, None, False)
         self._db = db
         self._metadata = metadata
         self._params = params
-        self._audio = Audio()
 
     def run(self):
         errors = list()
@@ -35,7 +34,8 @@ class Plugin:
             ds = Scanner(ds)
             for key,params in iter(self._params.items()):
                 expecting = params['expecting']
-                message = params.get('message', None)
+                message = params.get('message', 'no message?')
+                bsod = params.get('bsod', False)
                 # check if expected value is a regex
                 regex = re.match('regex\((.*)\)', str(expecting))
                 if regex:
@@ -50,9 +50,9 @@ class Plugin:
                     if (series, key) in errors:
                         continue
                     errors.append((series, key))
-                    if message:
-                        logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+                    self.critical = (True, message, bsod)
                     details = f'{name}::{description}::{series} - {key} - expected "{expecting}" but found "{actual}"'
-                    logger.error(colored(details, 'red', attrs=['bold', 'blink']))
-                    self._audio.error()
-            
+                    self.app.call_from_thread(
+                        self.app.logger.error,
+                        f'[bold red blink]{details}[/]'
+                    )

@@ -2,16 +2,16 @@ import os
 import re
 import pydicom
 import logging
-import matplotlib
+#import matplotlib
 import multiprocessing as m
-import matplotlib.pyplot as plt
-from termcolor import colored
 from multiprocessing import Process
 
 logger = logging.getLogger(__name__)
 
 class Plugin:
-    def __init__(self, db, metadata, params, save_dirname='~/Desktop/images'):
+    def __init__(self, app, db, metadata, params, save_dirname='~/Desktop/images'):
+        self.app = app
+        self.critical = (False, None, False)
         self._db = db
         self._metadata = metadata
         self._params = params if params else dict()
@@ -20,7 +20,6 @@ class Plugin:
         os.makedirs(self._save_dirname, exist_ok=True)
 
     def run(self):
-        logger.info('running std plugin')
         for f in os.listdir(self._db):
             fname = os.path.join(self._db, f)
             ds = pydicom.read_file(fname)
@@ -33,12 +32,14 @@ class Plugin:
             for op,params in iter(self._params.items()):
                 expecting = params['expecting']
                 message = params.get('message', None)
+                bsod = params.get('bsod', False)
                 if op == 'lt' and contrast < expecting:
-                    if message:
-                        logger.error(colored(message, 'red', attrs=['bold', 'blink']))
+                    self.critical = (True, message, bsod)
                     details = f'scan {series} - {description} - instance {instance} has std {contrast:.2f} < {expecting}'
-                    logger.error(colored(details, 'red', attrs=['bold', 'blink']))
-                    self.plot(ds.pixel_array)
+                    self.app.call_from_thread(
+                        self.app.logger.error,
+                        f'[bold red blink]{details}[/]'
+                    )
 
     def plot(self, arr):
         p = Process(

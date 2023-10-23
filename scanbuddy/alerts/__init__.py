@@ -1,8 +1,6 @@
 import os
-import logging
-import scanbuddy.config as config
-
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+import scanbuddy.config as config
 from pygame import mixer
 
 class Audio:
@@ -16,9 +14,10 @@ class Audio:
             except:
                 pass
 
-    def error(self):
+    def chime(self):
         if not self._has_audio:
             return
-        fname = os.path.join(self._dir, 'error.mp3')
+        fname = os.path.join(self._dir, 'win98.mp3')
         mixer.music.load(fname)
         mixer.music.play()
+
