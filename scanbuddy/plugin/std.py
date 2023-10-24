@@ -1,12 +1,10 @@
 import os
 import re
+import time
 import pydicom
-import logging
-#import matplotlib
-import multiprocessing as m
-from multiprocessing import Process
-
-logger = logging.getLogger(__name__)
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('agg')
 
 class Plugin:
     def __init__(self, app, db, metadata, params, save_dirname='~/Desktop/images'):
@@ -34,24 +32,22 @@ class Plugin:
                 message = params.get('message', None)
                 bsod = params.get('bsod', False)
                 if op == 'lt' and contrast < expecting:
+                    if params.get('append_coil_string', False):
+                        coil_str = ds[(0x0051, 0x100f)].value
+                        instance = f'{instance}[{coil_str}]'
                     self.critical = (True, message, bsod)
-                    details = f'scan {series} - {description} - instance {instance} has std {contrast:.2f} < {expecting}'
+                    details = f'{name}, scan {series}, {description}, instance {instance} has std {contrast:.2f} < {expecting}'
                     self.app.call_from_thread(
                         self.app.logger.error,
                         f'[bold red blink]{details}[/]'
                     )
+                    self.plot(ds.pixel_array, instance=instance)
 
-    def plot(self, arr):
-        p = Process(
-            target=self._plot,
-            args=(arr,)
-        ).start()
-    
-    def _plot(self, arr):
+    def plot(self, arr, **kwargs):
         name = self._metadata['PatientName'].value
         series = self._metadata['SeriesNumber'].value
         description = self._metadata['SeriesDescription'].value
-        instance = self._metadata['InstanceNumber'].value
+        instance = kwargs.get('instance') or self._metadata['InstanceNumber'].value
         matplotlib.rcParams['toolbar'] = 'None'
         fig = plt.figure(f'{name}')
         plt.title(f'{name}\n{description}')
@@ -61,11 +57,9 @@ class Plugin:
         plt.imshow(arr, cmap='gray')
         legal = re.compile('[^a-zA-Z0-9]')
         ses = legal.sub('', str(name))
+        basename = f'ses-{ses}_series-{series}_instance-{instance}_std.png'
         fname = os.path.join(
             self._save_dirname,
-            f'ses-{ses}_series-{series}_instance-{instance}_std.png'
+            basename
         )
         plt.savefig(fname)
-        plt.show(block=False)
-        plot_timeout = self._params.get('plot_timeout', 120)
-        plt.pause(plot_timeout)

@@ -1,19 +1,19 @@
 #!/usr/bin/env python3 -u
 
-import scanbuddy
-import multiprocessing
+from argparse import ArgumentParser
 from textual.app import App
+from textual.widgets import Header, Footer
+import scanbuddy
 import scanbuddy.config as config
 from scanbuddy.cstore import CStore
-from argparse import ArgumentParser
-from textual.widgets import Header, Footer
 from scanbuddy.ui.widgets import Logger
 from scanbuddy.ui.screens.bsod import BSOD
 from scanbuddy.alerts import Audio
 
 class ScanBuddy(App):
     BINDINGS = [
-        ('q', 'quit', 'Quit')
+        ('q', 'quit', 'Quit'),
+        ('c', 'clear', 'Clear')
     ]
 
     def parse_args(self):
@@ -29,9 +29,12 @@ class ScanBuddy(App):
         self.args = parser.parse_args()
         config.no_sound = self.args.no_sound
 
-    def compose(self):
+    def action_clear(self) -> None:
+        self.logger.clear()
+
+    def compose(self) -> None:
         self.parse_args()
-        self.logger = Logger(markup=True)
+        self.logger = Logger(markup=True, highlight=True)
         self.logger.max_lines = self.args.scrollback
         yield Header()
         yield self.logger
@@ -44,11 +47,10 @@ class ScanBuddy(App):
     def chime(self) -> None:
         Audio().chime()
 
-    def bsod(self, message) -> None:
-        screen = BSOD(message)
+    def bsod(self, message, title=None) -> None:
+        screen = BSOD(message, title)
         self.push_screen(screen)
  
 if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn')
     app = ScanBuddy()
     app.run()

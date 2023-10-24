@@ -1,13 +1,8 @@
 import os
 import re
 import pydicom
-import logging
-
 import scanbuddy.scanner as scanner
 from scanbuddy.logging import DuplicateFilter
-
-logger = logging.getLogger('plugins.params')
-logger.addFilter(DuplicateFilter())
 
 class Plugin:
     def __init__(self, app, db, metadata, params):
@@ -51,7 +46,7 @@ class Plugin:
                         continue
                     errors.append((series, key))
                     self.critical = (True, message, bsod)
-                    details = f'{name}::{description}::{series} - {key} - expected "{expecting}" but found "{actual}"'
+                    details = f'{name}, scan {series}, {description} - {key} - expected "{expecting}" but found "{actual}"'
                     self.app.call_from_thread(
                         self.app.logger.error,
                         f'[bold red blink]{details}[/]'

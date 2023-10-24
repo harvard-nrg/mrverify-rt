@@ -15,12 +15,13 @@ class BSOD(Screen):
     BINDINGS = [('escape', 'app.pop_screen', 'Pop screen')]
     CSS_PATH = 'bsod.tcss'
 
-    def __init__(self, message, *args, **kwargs):
+    def __init__(self, message, title=None, *args, **kwargs):
         self._message = message
+        self._title = title or 'Scan Buddy'
         super(BSOD, self).__init__(*args, **kwargs)
         
     def compose(self) -> ComposeResult:
-        yield Static(' Scan Buddy ', id='title')
+        yield Static(f' {self._title} ', id='title')
         yield Static(f'[blink]{ERROR_ART}[/]')
         yield Static(self._message)
         yield Button('Dismiss')

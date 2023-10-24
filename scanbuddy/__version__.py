@@ -1,6 +1,6 @@
 __title__ = 'scanbuddy'
 __description__ = 'Scan Buddy'
 __url__ = 'https://github.com/harvard-nrg/scanbuddy'
-__version__ = 'v0.2.2'
+__version__ = 'v0.2.3'
 __author__ = 'Neuroinformatics Research Group'
 __author_email__ = 'info@neuroinfo.org'

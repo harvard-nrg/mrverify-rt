@@ -22,5 +22,4 @@ class Logger(RichLog):
         self.write(content, **kwargs)
 
     def now(self):
-        return datetime.datetime.now().strftime("%B %d, %Y %I:%M %p")            
-        
+        return datetime.datetime.now().strftime("%b %d, %Y %I:%M %p")

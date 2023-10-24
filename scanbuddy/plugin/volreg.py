@@ -1,9 +1,7 @@
 import os
 import re
-import logging
 from glob import glob
 import subprocess as sp
-from multiprocessing import Process
 
 import numpy as np
 import nibabel as nib
@@ -13,8 +11,6 @@ import matplotlib.pyplot as plt
 
 from scanbuddy.timer import Timer
 from scanbuddy.commons import which
-
-logger = logging.getLogger(__name__)
 
 class Plugin:
     def __init__(self, app, db, metadata, params, save_dirname='~/Desktop/images'):
@@ -29,7 +25,10 @@ class Plugin:
 
     def run(self):
         series = self._metadata['SeriesNumber'].value
-        logger.info(f'running bold motion plugin on series {series}')
+        self.app.call_from_thread(
+            self.app.logger.info,
+            f'running bold motion plugin on series {series}'
+        )
         # check installed dependencies
         for x in ['dcm2niix', '3dvolreg']:
             if not which(x):
@@ -48,13 +47,18 @@ class Plugin:
         # find single nifti file or multiecho nifti
         nii = self.find_nii()
         if not nii:
-            logger.warn(f'could not find a nifti for series {series}')
+            self.app.call_from_thread(
+                self.app.logger.warning,
+                f'could not find a nifti for series {series}'
+            )
             return
-        logger.debug(f'using file {nii}')
         ds = nib.load(nii)
         dims = ds.header['dim'][0]
         if dims < 4:
-            logger.info(f'series only has {dims} dimensions')
+            self.app.call_from_thread(
+                self.app.logger.info,
+                f'series only has {dims} dimensions'
+            )
             return
         # estimate motion parameters
         mocopar = os.path.join(self._db, 'moco.par')
@@ -77,12 +81,6 @@ class Plugin:
                 data.append(row)
         arr = np.array(data)
 
-    def plot(self, arr):
-        p = Process(
-            target=self._plot,
-            args=(arr,)
-        ).start()
-
     def find_nii(self):
         # look for a single nifti file
         nii = os.path.join(self._db, 'bold.nii.gz')
@@ -94,7 +92,7 @@ class Plugin:
             return nii
         return None
 
-    def _plot(self, arr):
+    def plot(self, arr):
         name = self._metadata['PatientName'].value
         series = self._metadata['SeriesNumber'].value
         description = self._metadata['SeriesDescription'].value
@@ -125,6 +123,3 @@ class Plugin:
             f'ses-{ses}_series-{series}_volreg.png'
         )
         plt.savefig(fname)
-        plt.show(block=False)
-        plot_timeout = self._params.get('plot_timeout', 120)
-        plt.pause(plot_timeout)

@@ -6,6 +6,7 @@ from threading import Timer
 import scanbuddy.plugin
 import scanbuddy.scanner
 from scanbuddy.config import Config
+from rich.panel import Panel
 
 logger = logging.getLogger(__name__)
 
@@ -58,14 +59,24 @@ class SeriesIngress:
         try:
             for name,params in iter(plugins.items()):
                 plugin = scanbuddy.plugin.load(name)(self.app, self._db, self._example, params)
-                self.app.call_from_thread(self.app.logger.info, f'running plugin {name} on series {series}')
+                self.app.call_from_thread(
+                    self.app.logger.info,
+                    f'running plugin {name} on scan {series}'
+                )
                 plugin.run()
                 err, message, bsod = plugin.critical
                 if err:
                     self.app.call_from_thread(self.app.chime)
-                    self.app.call_from_thread(self.app.logger.error, f'[bold red]{message}[/]')
+                    self.app.call_from_thread(
+                        self.app.logger.write,
+                        Panel(f'[bold red]{message.strip()}[/]')
+                    )
                     if bsod:
-                        self.app.call_from_thread(self.app.bsod, message)
+                        self.app.call_from_thread(
+                            self.app.bsod,
+                            message,
+                            title=self._example.PatientName
+                        )
         finally:
             self.cleanup()
 
