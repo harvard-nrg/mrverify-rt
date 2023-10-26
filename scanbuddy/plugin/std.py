@@ -5,6 +5,7 @@ import pydicom
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('agg')
+import urllib.parse
 
 class Plugin:
     def __init__(self, app, db, metadata, params, save_dirname='~/Desktop/images'):
@@ -49,6 +50,7 @@ class Plugin:
         description = self._metadata['SeriesDescription'].value
         instance = kwargs.get('instance') or self._metadata['InstanceNumber'].value
         matplotlib.rcParams['toolbar'] = 'None'
+        plt.clf()
         fig = plt.figure(f'{name}')
         plt.title(f'{name}\n{description}')
         plt.gca().set_xticks([])
@@ -63,3 +65,8 @@ class Plugin:
             basename
         )
         plt.savefig(fname)
+        url = urllib.parse.quote(f'{fname}')
+        self.app.call_from_thread(
+            self.app.logger.info,
+            f'[link=file://{url}]click here to view image[/link]'
+        )

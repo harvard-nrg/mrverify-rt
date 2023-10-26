@@ -2,15 +2,18 @@ import os
 import re
 from glob import glob
 import subprocess as sp
-
 import numpy as np
 import nibabel as nib
 import pydicom
 import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
-
+import urllib.parse
 from scanbuddy.timer import Timer
 from scanbuddy.commons import which
+from rich.panel import Panel
+from rich.text import Text
+import plotext as plx
 
 class Plugin:
     def __init__(self, app, db, metadata, params, save_dirname='~/Desktop/images'):
@@ -80,6 +83,7 @@ class Plugin:
                 row = list(map(float, row))
                 data.append(row)
         arr = np.array(data)
+        self.plot(arr)
 
     def find_nii(self):
         # look for a single nifti file
@@ -97,6 +101,7 @@ class Plugin:
         series = self._metadata['SeriesNumber'].value
         description = self._metadata['SeriesDescription'].value
         matplotlib.rcParams['toolbar'] = 'None'
+        plt.clf()
         fig = plt.figure(f'{name}')
         plt.style.use('bmh')
         # rotations subplot
@@ -123,3 +128,20 @@ class Plugin:
             f'ses-{ses}_series-{series}_volreg.png'
         )
         plt.savefig(fname)
+        url = urllib.parse.quote(f'{fname}')
+        self.app.call_from_thread(
+            self.app.logger.info,
+            f'[link=file://{url}]click here to view image[/link]'
+        )
+        # convert figure to text and print to the console
+        plx.from_matplotlib(fig)
+        plx.subplot(1, 1).plotsize(70, 20)
+        plx.subplot(1, 1).theme('retro')
+        plx.subplot(2, 1).plotsize(70, 20)
+        plx.subplot(2, 1).xlabel('Volumes (N)')
+        plx.subplot(2, 1).theme('retro')
+        txt = Text.from_ansi(plx.build())
+        self.app.call_from_thread(
+            self.app.logger.write,
+            Panel(txt, expand=False)
+        )

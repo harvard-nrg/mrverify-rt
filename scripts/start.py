@@ -34,7 +34,7 @@ class ScanBuddy(App):
 
     def compose(self) -> None:
         self.parse_args()
-        self.logger = Logger(markup=True, highlight=True)
+        self.logger = Logger(markup=True, highlight=True, wrap=True)
         self.logger.max_lines = self.args.scrollback
         yield Header()
         yield self.logger

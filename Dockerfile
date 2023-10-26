@@ -43,7 +43,7 @@ RUN cmake .. && \
 
 # install scanbuddy
 ARG BUDDY_PREFIX="/sw/apps/scanbuddy"
-ARG BUDDY_VERSION="v0.2.3"
+ARG BUDDY_VERSION="v0.3.0"
 RUN python3 -m venv "${BUDDY_PREFIX}" && \
     dnf install -y gcc zlib-devel libjpeg-devel python39-tkinter && \
     "${BUDDY_PREFIX}/bin/pip" install "git+https://github.com/harvard-nrg/scanbuddy.git@${BUDDY_VERSION}"

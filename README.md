@@ -1,10 +1,12 @@
 Scan Buddy
 ============
-Traditional MRI quality control pipelines take place _after_ the MRI has 
-been captured and the participant has gone home. Scan Buddy is a lightweight 
-DICOM receiver that you can place next to the scanner console that will ingest 
-scan data in realtime and alert you to potential acquisition errors such as 
-noisy data, incorrectly connected equipment, and excessive head motion.
+
+<img width="400" alt="volreg" src="https://github.com/harvard-nrg/scanbuddy/assets/1966482/57907018-022c-4eac-96b7-47ee2e7e4b94">
+<img width="400" alt="warning" src="https://github.com/harvard-nrg/scanbuddy/assets/1966482/1231d39c-3d59-4304-8f18-c666730c101a">
+
+Scan Buddy is a lightweight, configurable application that will ingest MRI data (over DICOM) 
+in realtime and alert the user to common acquisition errors such as noisy data, incorrectly 
+connected equipment, and excessive head motion.
 
 ## Table of contents
 1. [Hardware requirements](#hardware-requirements)
@@ -22,8 +24,9 @@ noisy data, incorrectly connected equipment, and excessive head motion.
    5. [regular expression matching](#regular-expression-matching)
 
 ## Hardware requirements
-Scan Buddy is a simple command line tool that will run on very modest hardware. 
-Even something as small as a Raspberry Pi 4 with 8 GB of RAM would do just fine.
+Scan Buddy is a simple command line tool that will run on modest hardware. Even 
+the user interface is [text based](https://textual.textualize.io/)! Something as 
+small as a Raspberry Pi 4 with 8 GB of RAM would more than suffice.
 
 ## Installation
 Scan Buddy is written in Python and depends on
