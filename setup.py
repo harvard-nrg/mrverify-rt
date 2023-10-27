@@ -6,6 +6,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 requires = [
     'pyaml',
     'pygame',
+    'plotext',
     'textual',
     'textual-dev',
     'pynetdicom',

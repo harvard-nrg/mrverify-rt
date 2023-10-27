@@ -25,17 +25,20 @@ connected equipment, and excessive head motion.
 
 ## Hardware requirements
 Scan Buddy is a simple command line tool that will run on modest hardware. Even 
-the user interface is [text based](https://textual.textualize.io/)! Something as 
-small as a Raspberry Pi 4 with 8 GB of RAM would more than suffice.
+the user interface is entirely [terminal based](https://textual.textualize.io/).
+Something as small as a Raspberry Pi 4 with 8 GB of RAM would suffice.
 
 ## Installation
-Scan Buddy is written in Python and depends on
-[dcm2niix](https://github.com/rordenlab/dcm2niix) and a few tools from 
-[AFNI](https://github.com/afni/afni) (because they're really fast).
+Scan Buddy is written in Python and only one plugin `volreg` depends on the 
+external command line tools
+[`dcm2niix`](https://github.com/rordenlab/dcm2niix)
+and `3dvolreg` from
+[AFNI](https://github.com/afni/afni)
+(because these tools are fast).
 
-You can install everything on your own, or use 
+You can certainly install everything on your own, or you can use 
 [one of the provided containers](https://github.com/harvard-nrg/scanbuddy/pkgs/container/scanbuddy)
-which are available for linux/amd64 or linux/arm64.
+available for `linux/amd64` or `linux/arm64`.
 
 ## Running Scan Buddy
 To run Scan Buddy, run the `start.py` command line tool with a custom 
@@ -65,13 +68,13 @@ Now you should be able to run the container with the following command
 ```
 
 ## Configuration file
-At it's core, Scan Buddy works off of a configuration file. Here's how to 
-create one.
+At it's core, Scan Buddy works off of a configuration file. Here's a quick 
+walkthrough of the configuration file.
 
 ### defining selectors 
-Scan Buddy passes every incoming scan through a `selector` and in turn will 
-run any defined `plugins` on a matching scan. For example, to target an uncombined 
-localizer, you might use the following `selector`
+Every scan received by Scan Buddy is passed through a `selector` which will 
+in turn run any defined `plugins` on that scan. To target an uncombined 
+localizer, you would use the following `selector`
 
 ```yaml
 - selector:
@@ -79,20 +82,19 @@ localizer, you might use the following `selector`
     image_type: [ORIGINAL, PRIMARY, M, ND]
 ```
 
-This will select any scan that matches the expected `series_description` **AND** 
+This will match any scan with that exact `series_description` **AND** 
 `image_type`. When Scan Buddy finds a match, it will proceed with running any 
 configured [plugins](#plugins).
 
 ### defining plugins
-For each scan, you're able to register plugins within the `plugins` section. 
-For a description of available plugins, skip to 
-[Available Plugins](#plugins).
+For each scan, you can register plugins within the `plugins` section. For a 
+description of all available plugins, jump to [Available Plugins](#plugins).
 
 ## Plugins
-Here are all plugins that exist out of the box.
+Here are all available plugins.
 
 ### params
-You can use the `params` plugin to check specific DICOM headers. For example, checking 
+You can use the `params` plugin to validate DICOM headers. For example, checking 
 the `coil_elements` header for the string `HEA;HEP` can detect an improperly seated 
 head coil
 
@@ -107,9 +109,9 @@ head coil
 ```
 
 ### std
-You can check whether or not the standard deviation of every frame is less than 
-a particular value using the `std` plugin. This is useful for identifying especially 
-noisy receive coils
+You can use the `std` plutin to check whether or not the standard deviation of every 
+image in a scan is less than a particular value. This is a useful plugin to run on 
+an uncombined localizer to identify noisy receive coils
 
 ```yaml
 - selector:
@@ -119,18 +121,17 @@ noisy receive coils
     params:
       coil_elements:
         expecting: HEA;HEP
-        message: make sure the head coil is fully seated
     std:
       lt:
         expecting: 0.7
 ```
 
 ### volreg
-You can have Scan Buddy run a fast volume registration on a BOLD scan using
-the `volreg` plugin
+You can use the `volreg` plugin to have Scan Buddy run a quick volume registration 
+on a functional (4-D) scan
 
 > **Note**
-> Since `volreg` accepts no paramters, you would use `volreg: null`
+> Since `volreg` accepts no paramters, use `volreg: null`
 
 ```yaml
 - selector:
@@ -140,15 +141,15 @@ the `volreg` plugin
 ```
 
 ### custom messages
-When there's an error detected, Scan Buddy will print a message like so
+When there's an error detected, Scan Buddy will print a message to the screen
 
 ```bash
-PatientName::localizer_32ch_uncombined::2 - coil_elements - expected "HEA;HEP" but found "HEA"
+PatientName, scan 2, localizer_32ch_uncombined - coil_elements - expected "HEA;HEP" but found "HEA"
 ```
 
-Admittedly, these messages can be a little cryptic. If you want to display a 
-custom message when a particular type of error is detected, you can add a 
-`message` element
+While this message is indeed true to the error that was detected, these messages can 
+be a little cryptic and they offer no guidance on how to _correct_ the error. To 
+display a more detailed error message, you can use the `message` element
 
 ```yaml
 - selector:
@@ -158,18 +159,54 @@ custom message when a particular type of error is detected, you can add a
     params:
       coil_elements:
         expecting: HEA;HEP
-        message:  make sure the head coil is fully seated
+        message:  |
+            Detected an issue with head coil elements.
+
+            1. Check head coil connection for debris or other obstructions.
+            2. Reconnect head coil securely.
+            3. Ensure that anterior and posterior coil elements are present.
+
+            Call 867-5309 for further assistance.
 ```
 
+### Blue screen of death
+For any type of error, you can have Scan Buddy display a scary looking red 
+screen that must be manually dismissed. This option is named `bsod` as it 
+is similar in spirit to the infamous 
+[Blue Screen of Death](#https://en.wikipedia.org/wiki/Blue_screen_of_death)
+
+```yaml
+- selector:
+    series_description: localizer_32ch_uncombined
+    image_type: [ORIGINAL, PRIMARY, M, ND]
+  plugins:
+    params:
+      coil_elements:
+        expecting: HEA;HEP
+        message:  |
+            Detected an issue with head coil elements.
+
+            1. Check head coil connection for debris or other obstructions.
+            2. Reconnect head coil securely.
+            3. Ensure that anterior and posterior coil elements are present.
+
+            Call 867-5309 for further assistance.
+        bsod: true
+```
+ 
+This screen is intended to immediately capture the user's attention.
+
 ### regular expression matching
-If there is no exact match for an expected value within a `selector` or a 
-`plugin`, you can use a regular expression. 
+Sometimes there is no exact match for an expected value within a `selector` 
+or the value a plugin is `expecting`. In these cases, you can use a regular 
+expression. 
 
 For example, if you want your uncombined localizer `selector` to match both 
-Siemens Skyra and Prisma scanners, you would use something like this
+Siemens Skyra and Prisma scanners, you would do something like this
 
 ```yaml
 - selector:
     series_description: regex(localizer_(Skyra_)?32ch_uncombined)
     image_type: [ORIGINAL, PRIMARY, M, ND]
 ```
+
