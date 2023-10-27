@@ -28,10 +28,6 @@ class Plugin:
 
     def run(self):
         series = self._metadata['SeriesNumber'].value
-        self.app.call_from_thread(
-            self.app.logger.info,
-            f'running bold motion plugin on series {series}'
-        )
         # check installed dependencies
         for x in ['dcm2niix', '3dvolreg']:
             if not which(x):
@@ -135,9 +131,9 @@ class Plugin:
         )
         # convert figure to text and print to the console
         plx.from_matplotlib(fig)
-        plx.subplot(1, 1).plotsize(70, 20)
+        plx.subplot(1, 1).plotsize(60, 10)
         plx.subplot(1, 1).theme('retro')
-        plx.subplot(2, 1).plotsize(70, 20)
+        plx.subplot(2, 1).plotsize(60, 10)
         plx.subplot(2, 1).xlabel('Volumes (N)')
         plx.subplot(2, 1).theme('retro')
         txt = Text.from_ansi(plx.build())

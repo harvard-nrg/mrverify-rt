@@ -31,8 +31,10 @@ class ScanBuddy(App):
 
     def action_clear(self) -> None:
         self.logger.clear()
+        self.logger.info(self.welcome)
 
     def compose(self) -> None:
+        self.welcome = f'Welcome to ScanBuddy {scanbuddy.version()}'
         self.parse_args()
         self.logger = Logger(markup=True, highlight=True, wrap=True)
         self.logger.max_lines = self.args.scrollback
@@ -41,7 +43,7 @@ class ScanBuddy(App):
         yield Footer()
 
     def on_ready(self) -> None:
-        self.logger.info(f'Welcome to ScanBuddy {scanbuddy.version()}')
+        self.logger.info(self.welcome)
         CStore(self).run()
 
     def chime(self) -> None:

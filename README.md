@@ -4,8 +4,8 @@ Scan Buddy
 <img width="400" alt="volreg" src="https://github.com/harvard-nrg/scanbuddy/assets/1966482/57907018-022c-4eac-96b7-47ee2e7e4b94">
 <img width="400" alt="warning" src="https://github.com/harvard-nrg/scanbuddy/assets/1966482/1231d39c-3d59-4304-8f18-c666730c101a">
 
-Scan Buddy is a lightweight, configurable application that will ingest MRI data (over DICOM) 
-in realtime and alert the user to common acquisition errors such as noisy data, incorrectly 
+Scan Buddy is a lightweight configurable application that will ingest MRI data (over DICOM) 
+and alert the user in realtime to common acquisition errors such as noisy data, incorrectly 
 connected equipment, and excessive head motion.
 
 ## Table of contents
@@ -32,8 +32,8 @@ Something as small as a Raspberry Pi 4 with 8 GB of RAM would suffice.
 Scan Buddy is written in Python and only one plugin `volreg` depends on the 
 external command line tools
 [`dcm2niix`](https://github.com/rordenlab/dcm2niix)
-and `3dvolreg` from
-[AFNI](https://github.com/afni/afni)
+and [3dvolreg from
+AFNI](https://github.com/afni/afni)
 (because these tools are fast).
 
 You can certainly install everything on your own, or you can use 
@@ -68,8 +68,8 @@ Now you should be able to run the container with the following command
 ```
 
 ## Configuration file
-At it's core, Scan Buddy works off of a configuration file. Here's a quick 
-walkthrough of the configuration file.
+At its core, Scan Buddy works off of a configuration file. Below you will find 
+a quick walkthrough.
 
 ### defining selectors 
 Every scan received by Scan Buddy is passed through a `selector` which will 
@@ -109,7 +109,7 @@ head coil
 ```
 
 ### std
-You can use the `std` plutin to check whether or not the standard deviation of every 
+You can use the `std` plugin to check whether or not the standard deviation of every 
 image in a scan is less than a particular value. This is a useful plugin to run on 
 an uncombined localizer to identify noisy receive coils
 
