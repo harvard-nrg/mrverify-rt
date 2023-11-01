@@ -29,7 +29,6 @@ class Plugin:
 
     def run(self):
         series = self._metadata['SeriesNumber'].value
-        '''
         # check installed dependencies
         for x in ['dcm2niix', '3dvolreg']:
             if not which(x):
@@ -76,9 +75,6 @@ class Plugin:
         ]
         with Timer('3dvolreg'):
             _ = sp.check_output(cmd, stderr=sp.STDOUT)
-        '''
-        mocopar = os.path.join(self._db, 'moco.par')
-        maxdisp = os.path.join(self._db, 'maxdisp')
         # plot motion
         arr = np.loadtxt(mocopar)
         self.plot(arr)
