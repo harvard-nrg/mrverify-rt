@@ -13,6 +13,7 @@ from scanbuddy.timer import Timer
 from scanbuddy.commons import which
 from rich.panel import Panel
 from rich.text import Text
+from rich.table import Table
 import plotext as plx
 
 class Plugin:
@@ -28,6 +29,7 @@ class Plugin:
 
     def run(self):
         series = self._metadata['SeriesNumber'].value
+        '''
         # check installed dependencies
         for x in ['dcm2niix', '3dvolreg']:
             if not which(x):
@@ -61,10 +63,12 @@ class Plugin:
             return
         # estimate motion parameters
         mocopar = os.path.join(self._db, 'moco.par')
+        maxdisp = os.path.join(self._db, 'maxdisp')
         cmd = [
             '3dvolreg',
             '-linear',
             '-1Dfile', mocopar,
+            '-maxdisp1D', maxdisp,
             '-x_thresh', '10',
             '-rot_thresh', '10',
             '-prefix', 'NULL',
@@ -72,14 +76,36 @@ class Plugin:
         ]
         with Timer('3dvolreg'):
             _ = sp.check_output(cmd, stderr=sp.STDOUT)
-        data = list()
-        with open(mocopar, 'r') as fo:
-            for line in fo:
-                row = re.split('\s+', line.strip())
-                row = list(map(float, row))
-                data.append(row)
-        arr = np.array(data)
+        '''
+        mocopar = os.path.join(self._db, 'moco.par')
+        maxdisp = os.path.join(self._db, 'maxdisp')
+        # plot motion
+        arr = np.loadtxt(mocopar)
         self.plot(arr)
+        # summarize relative displacements
+        if self._params.get('overview', False):
+            fname = f'{maxdisp}_delt'
+            arr = np.loadtxt(fname)
+            self.motion_table(arr)
+
+    def motion_table(self, arr):
+        series = self._metadata['SeriesNumber'].value
+        gt1p0 = np.where(arr > 1.0)[0].size
+        gt0p5 = np.where(arr > 0.5)[0].size
+        gt0p1 = np.where(arr > 0.1)[0].size
+        self.app.call_from_thread(
+            self.app.logger.info,
+            f'overview of displacements for series {series}'
+        )
+        table = Table()
+        table.add_column('> 1.0 mm', justify='right', style='red')
+        table.add_column('> 0.5 mm', justify='right', style='yellow')
+        table.add_column('> 0.1 mm', justify='right', style='green')
+        table.add_row(str(gt1p0), str(gt0p5), str(gt0p1))
+        self.app.call_from_thread(
+            self.app.logger.write,
+            table
+        )
 
     def find_nii(self):
         # look for a single nifti file
