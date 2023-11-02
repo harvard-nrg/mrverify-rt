@@ -130,15 +130,17 @@ an uncombined localizer to identify noisy receive coils
 You can use the `volreg` plugin to have Scan Buddy run a quick volume registration 
 on a functional (4-D) scan
 
-> **Note**
-> Since `volreg` accepts no paramters, use `volreg: null`
-
 ```yaml
 - selector:
     series_description: ABCD_fMRI_rest_Skyra
   plugins:
-    volreg: null
+    volreg:
+      overview: true
 ```
+
+Setting `overview: true` will display a small summary of displacements between 
+successive timepoints. This can be useful to see if there were any sudden head 
+movements.
 
 ### custom messages
 When there's an error detected, Scan Buddy will print a message to the screen
