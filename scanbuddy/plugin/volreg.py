@@ -89,15 +89,19 @@ class Plugin:
         gt1p0 = np.where(arr > 1.0)[0].size
         gt0p5 = np.where(arr > 0.5)[0].size
         gt0p1 = np.where(arr > 0.1)[0].size
+        mean = np.round(np.mean(arr), decimals=3)
+        maximum = np.amax(arr)
         self.app.call_from_thread(
             self.app.logger.info,
-            f'overview of displacements for series {series}'
+            f'relative displacements summary for series {series}'
         )
         table = Table()
         table.add_column('> 1.0 mm', justify='right', style='red')
         table.add_column('> 0.5 mm', justify='right', style='yellow')
         table.add_column('> 0.1 mm', justify='right', style='green')
-        table.add_row(str(gt1p0), str(gt0p5), str(gt0p1))
+        table.add_column('mean', justify='right')
+        table.add_column('max', justify='right')
+        table.add_row(str(gt1p0), str(gt0p5), str(gt0p1), f'{mean} mm', f'{maximum} mm')
         self.app.call_from_thread(
             self.app.logger.write,
             table
