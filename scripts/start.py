@@ -24,7 +24,7 @@ class ScanBuddy(App):
         parser.add_argument('--ae-title', default='SCANBUDDY')
         parser.add_argument('--cache', default='~/.cache')
         parser.add_argument('--no-sound', action='store_true')
-        parser.add_argument('--scrollback', type=int, default=5000)
+        parser.add_argument('--scrollback', type=int, default=500)
         parser.add_argument('-v', '--verbose', action='store_true')
         self.args = parser.parse_args()
         config.no_sound = self.args.no_sound
