@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 mapping = {
    ('SIEMENS', 'Skyra'): Skyra,
    ('SIEMENS', 'Prisma'): Prisma,
-   ('SIEMENS', 'Prisma_fit'): Prisma
+   ('SIEMENS', 'Prisma_fit'): Prisma,
+   ('Siemens Healthineers', 'MAGNETOM Prisma Fit'): Prisma
 }
 
 def get(ds):
