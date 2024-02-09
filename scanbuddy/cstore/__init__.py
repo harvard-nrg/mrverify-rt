@@ -1,6 +1,9 @@
 import sys
 from textual.widgets import RichLog
-from pynetdicom import AE, evt, AllStoragePresentationContexts, _config
+from pynetdicom import (
+    AE, evt, ALL_TRANSFER_SYNTAXES, 
+    AllStoragePresentationContexts, _config
+)
 from pathlib import Path
 from scanbuddy.ingress import SeriesIngress
 
@@ -28,7 +31,7 @@ class CStore:
                 ]
             )
         ]
-        ae.maximum_pdu_size = 0
+        ae.maximum_pdu_size = 16384 * 2
         ae.start_server(
             (
                 self.app.args.address,
