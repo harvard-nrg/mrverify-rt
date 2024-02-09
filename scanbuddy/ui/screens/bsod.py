@@ -22,9 +22,9 @@ class BSOD(Screen):
         
     def compose(self) -> ComposeResult:
         yield Static(f' {self._title} ', id='title')
-        yield Static(f'[blink]{ERROR_ART}[/]')
-        yield Static(self._message)
-        yield Button('Dismiss')
+        yield Static(f'[blink]{ERROR_ART}[/]', id='error-art')
+        yield Static(self._message, id='message')
+        yield Button('Dismiss', id='dismiss-btn')
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()

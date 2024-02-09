@@ -25,6 +25,17 @@ class Siemens:
             dat[key] = value.strip('"')
         return dat
 
+    def image_type_text(self):
+        value = None
+        try:
+            elem = self._ds[(0x5200, 0x9230)][0]
+            elem = elem[(0x0021, 0x11fe)][0]
+            elem = elem[(0x0021, 0x1175)]
+            value = elem.value
+        except:
+            pass
+        return value
+
     def image_orientation_patient(self):
         return self._ds.ImageOrientationPatient
 

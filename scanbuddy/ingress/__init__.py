@@ -53,10 +53,10 @@ class SeriesIngress:
             f()
  
     def _process(self):
-        series = self._example.SeriesNumber
-        Scanner = scanbuddy.scanner.get(self._example)
-        plugins = self._conf.select(Scanner(self._example))
         try:
+            series = self._example.SeriesNumber
+            Scanner = scanbuddy.scanner.get(self._example)
+            plugins = self._conf.select(Scanner(self._example))
             for name,params in iter(plugins.items()):
                 plugin = scanbuddy.plugin.load(name)(self.app, self._db, self._example, params)
                 self.app.call_from_thread(

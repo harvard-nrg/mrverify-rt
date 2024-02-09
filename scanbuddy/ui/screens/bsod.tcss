@@ -13,6 +13,7 @@ BSOD>Static {
     text-style: reverse;
 }
 
-#any-key {
-    content-align-horizontal: center;
+#dismiss-btn { 
+    width: 70;
 }
+
