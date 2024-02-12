@@ -1,14 +1,23 @@
 #!/usr/bin/env python3 -u
 
+import logging
 from argparse import ArgumentParser
 from textual.app import App
 from textual.widgets import Header, Footer
+from textual.logging import TextualHandler
 import scanbuddy
 import scanbuddy.config as config
 from scanbuddy.cstore import CStore
 from scanbuddy.ui.widgets import Logger
 from scanbuddy.ui.screens.bsod import BSOD
 from scanbuddy.alerts import Audio
+
+logging.basicConfig(
+    level='INFO',
+    handlers=[
+        TextualHandler()
+    ]
+)
 
 class ScanBuddy(App):
     BINDINGS = [

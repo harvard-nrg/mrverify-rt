@@ -28,10 +28,13 @@ class Siemens:
     def image_type_text(self):
         value = None
         try:
-            elem = self._ds[(0x5200, 0x9230)][0]
-            elem = elem[(0x0021, 0x11fe)][0]
-            elem = elem[(0x0021, 0x1175)]
-            value = elem.value
+            e = self._ds[(0x5200, 0x9230)][0]
+            if (0x0021, 0x10fe) in e:
+                e = e[(0x0021, 0x10fe)][0]
+                value = e[(0x0021, 0x1075)].value
+            elif (0x0021, 0x11fe) in e:
+                e = e[(0x0021, 0x11fe)][0]
+                value = e[(0x0021, 0x1175)].value
         except:
             pass
         return value
@@ -84,13 +87,32 @@ class Siemens:
     def series_number(self):
         return self._ds.SeriesNumber
 
+    def findone(self, tag):
+        for item in self._ds.iterall():
+            if item.tag == (0x0021, 0x114f): 
+                return item
+        return None
+
     def coil_elements(self):
-        tag = (0x0051,0x100f)
-        if tag not in self._ds:
+        result = None
+        try:
+            tag = (0x0051,0x100f)
+            return self._ds[tag].value
+        except:
+            pass
+        try:
+            tag = (0x0021, 0x114f)
+            return self.findone(tag).value
+        except:
+            pass
+        try:
             dat = self._csa()
             return dat['sCoilSelectMeas.sCoilStringForConversion']
-        return self._ds[tag].value
-        
+        except:
+            pass
+        logger.warning('could not find coil elemets')
+        return None
+
     def repetition_time(self):
         return float(self._ds.RepetitionTime)
 

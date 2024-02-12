@@ -47,6 +47,7 @@ class SeriesIngress:
 
     def cleanup(self):
         if os.path.exists(self._db):
+            logger.info(f'deleting {self._db}')
             shutil.rmtree(self._db)
             self._db = None
         for f in self._cleanup_callbacks:

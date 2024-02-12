@@ -31,7 +31,6 @@ class CStore:
                 ]
             )
         ]
-        ae.maximum_pdu_size = 16384 * 2
         ae.start_server(
             (
                 self.app.args.address,
