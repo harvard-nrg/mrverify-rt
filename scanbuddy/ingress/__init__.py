@@ -11,7 +11,7 @@ from rich.panel import Panel
 logger = logging.getLogger(__name__)
 
 class SeriesIngress:
-    def __init__(self, app, conf, cache='~/.cache/scanbuddy', wait=5):
+    def __init__(self, app, conf, cache='~/.cache/scanbuddy', wait=10):
         self.app = app
         self._conf = Config(conf)
         self._cache = os.path.expanduser(cache)
