@@ -31,6 +31,7 @@ class ScanBuddy(App):
         parser.add_argument('--address', default='0.0.0.0')
         parser.add_argument('--port', default=11112, type=int)
         parser.add_argument('--ae-title', default='SCANBUDDY')
+        parser.add_argument('--max-pdu-size', type=int, default=16382)
         parser.add_argument('--cache', default='~/.cache/scanbuddy')
         parser.add_argument('--no-sound', action='store_true')
         parser.add_argument('--scrollback', type=int, default=500)

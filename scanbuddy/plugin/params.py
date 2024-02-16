@@ -1,8 +1,10 @@
 import os
 import re
 import pydicom
+import logging
 import scanbuddy.scanner as scanner
-from scanbuddy.logging import DuplicateFilter
+
+logger = logging.getLogger('params')
 
 class Plugin:
     def __init__(self, app, db, metadata, params):
@@ -11,6 +13,7 @@ class Plugin:
         self._db = db
         self._metadata = metadata
         self._params = params
+        self._isregex = re.compile('regex\((.*)\)')
 
     def run(self):
         errors = list()
@@ -19,7 +22,7 @@ class Plugin:
         num_files = len(files)
         for f in files:
             fullfile = os.path.join(self._db, f)
-            ds = pydicom.read_file(fullfile)
+            ds = pydicom.dcmread(fullfile, stop_before_pixels=True)
             name = ds.PatientName
             series = ds.SeriesNumber
             description = ds.SeriesDescription
@@ -32,7 +35,7 @@ class Plugin:
                 message = params.get('message', 'no message?')
                 bsod = params.get('bsod', False)
                 # check if expected value is a regex
-                regex = re.match('regex\((.*)\)', str(expecting))
+                regex = self._isregex.match(str(expecting))
                 if regex:
                     expecting = regex.group(1).strip()
                 actual = getattr(ds, key)()
@@ -51,3 +54,4 @@ class Plugin:
                         self.app.logger.error,
                         f'[bold red blink]{details}[/]'
                     )
+

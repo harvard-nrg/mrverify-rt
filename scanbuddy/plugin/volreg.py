@@ -1,10 +1,8 @@
 import os
 import re
-from glob import glob
 import subprocess as sp
 import numpy as np
 import nibabel as nib
-import pydicom
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt

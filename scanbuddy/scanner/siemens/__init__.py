@@ -101,8 +101,10 @@ class Siemens:
         except:
             pass
         try:
-            tag = (0x0021, 0x114f)
-            return self.findone(tag).value
+            sequence = self._ds.get((0x5200, 0x9230))
+            sequence = sequence[0].get((0x0021, 0x11fe))
+            element = sequence[0].get((0x0021, 0x114f))
+            return element.value
         except:
             pass
         try:

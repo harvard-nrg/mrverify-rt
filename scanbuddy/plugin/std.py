@@ -21,7 +21,7 @@ class Plugin:
     def run(self):
         for f in os.listdir(self._db):
             fname = os.path.join(self._db, f)
-            ds = pydicom.read_file(fname)
+            ds = pydicom.dcmread(fname)
             name = ds.PatientName
             series = ds.SeriesNumber
             description = ds.SeriesDescription

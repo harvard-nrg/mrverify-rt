@@ -1,4 +1,5 @@
 import sys
+import logging
 from textual.widgets import RichLog
 from pynetdicom import (
     AE, evt, ALL_TRANSFER_SYNTAXES, 
@@ -6,6 +7,8 @@ from pynetdicom import (
 )
 from pathlib import Path
 from scanbuddy.ingress import SeriesIngress
+
+logger = logging.getLogger('scanbuddy.cstore')
 
 class CStore:
     _config.UNRESTRICTED_STORAGE_SERVICE = True
@@ -17,8 +20,10 @@ class CStore:
         address = self.app.args.address
         port = self.app.args.port
         ae_title = self.app.args.ae_title
+        max_pdu_size = self.app.args.max_pdu_size
         self.app.logger.info(f'starting receiver {ae_title} on {address}:{port}')
         ae = AE()
+        ae.maximum_pdu_size = max_pdu_size
         ae.supported_contexts = AllStoragePresentationContexts
         handlers = [
             (
