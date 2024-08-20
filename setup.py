@@ -11,7 +11,8 @@ requires = [
     'textual-dev',
     'pynetdicom',
     'nibabel',
-    'matplotlib'
+    'matplotlib',
+    'redis'
 ]
 
 about = dict()

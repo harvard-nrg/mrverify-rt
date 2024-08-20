@@ -2,6 +2,7 @@ import os
 import re
 import pydicom
 import logging
+import redis
 import scanbuddy.scanner as scanner
 
 logger = logging.getLogger('params')
@@ -14,6 +15,7 @@ class Plugin:
         self._metadata = metadata
         self._params = params
         self._isregex = re.compile('regex\((.*)\)')
+        self.redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
     def run(self):
         errors = list()
@@ -41,7 +43,7 @@ class Plugin:
                 actual = getattr(ds, key)()
                 try:
                     if regex:
-                        assert re.match(expecting, actual) != None
+                        assert re.match(expecting, actual) is not None
                     else:
                         assert actual == expecting
                 except AssertionError as e:
@@ -50,8 +52,19 @@ class Plugin:
                     errors.append((series, key))
                     self.critical = (True, message, bsod)
                     details = f'{name}, scan {series}, {description} - {key} - expected "{expecting}" but found "{actual}"'
-                    self.app.call_from_thread(
-                        self.app.logger.error,
-                        f'[bold red blink]{details}[/]'
-                    )
+                    
+                    # Log the error details to Redis
+                    error_data = {
+                        'name': name,
+                        'series': series,
+                        'description': description,
+                        'key': key,
+                        'expecting': expecting,
+                        'actual': actual,
+                        'message': message,
+                        'bsod': bsod
+                    }
+                    self.redis_client.rpush('scanbuddy_errors', str(error_data))
 
+
+                    
